@@ -8,7 +8,7 @@ library(tidyr)
 library(readr)
 
 # set working directory
-setwd("~/Desktop/Academic Work/R-Shiny/carifesta-archives")
+# setwd("~/Desktop/Academic Work/R-Shiny/carifesta-archives")
 
 # locally saved csv file
 carchives <- read_csv("carifesta-archives.csv")
