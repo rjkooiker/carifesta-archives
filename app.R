@@ -70,3 +70,6 @@ server <- function(input, output) {
 
 # run the application 
 shinyApp(ui = ui, server = server)
+
+# deploy app
+# rsconnect::deployApp('/Users/renekooiker/Desktop/Digital Projects/carifesta-archives/carifesta-archives/')
