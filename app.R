@@ -61,7 +61,7 @@ server <- function(input, output) {
                     '<a href=', carchives$repo_url, '>', carchives$label,
                     '</a>',
                     "<br>", "Description:", carchives$description,
-                    "<br>", "Files:", carchives$files
+                    "<br>", "Files:", carchives$folders
       ))
     
   })
