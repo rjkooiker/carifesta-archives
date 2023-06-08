@@ -34,8 +34,13 @@ ui <- fluidPage(
 
     # add filter for festival_edition - make sure there is a selection by default
     checkboxGroupInput("festival_edition", "Filter by festival edition",
-                    choices = c("ca72"=1, "ca76"=2, "ca79"=3, "ca81"=4, "ca88"=5, "ca92"=6),
-                    selected = 1 
+                    choices = c("Carifesta 72" = "ca72", 
+                                "Carifesta 76" = "ca76", 
+                                "Carifesta 79" = "ca79",
+                                "Carifesta 81" = "ca81",
+                                "Carifesta 88" = "ca88", 
+                                "Carifesta 92" = "ca92"),
+                    selected = c("ca72", "ca76", "ca79", "ca81", "ca88", "ca92"),
                     inline = TRUE
                     )
 )
