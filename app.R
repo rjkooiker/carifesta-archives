@@ -32,12 +32,12 @@ ui <- fluidPage(
     # display map on screen
     leafletOutput("locations")
 
-    # add filter for festival_edition
-  checkboxGroupInput("festival_edition", "Filter by festival edition",
-                    choices = c("ca72", "ca76", "ca79", "ca81", "ca88", "ca92"),
-                    inline = TRUE)
-
-
+    # add filter for festival_edition - make sure there is a selection by default
+    checkboxGroupInput("festival_edition", "Filter by festival edition",
+                    choices = c("ca72"=1, "ca76"=2, "ca79"=3, "ca81"=4, "ca88"=5, "ca92"=6),
+                    selected = 1 
+                    inline = TRUE
+                    )
 )
 # define server logic ---
 server <- function(input, output) {
@@ -49,15 +49,13 @@ server <- function(input, output) {
     locations<-leaflet(data=carchives)
     locations<-addTiles(locations)
 
-    # Filter the data by festival edition
-    if (any(input$festival_edition %in% carchives$category)) {
-      locations <- locations %>%
-        filter(category %in% input$festival_edition)
-    }
-    
-    # put markers on the map
-    
-    locations <- addMarkers(
+    # filter the data by festival edition and make it reactive
+
+    carchives_festival <- reactive(carchives[carchives$festival_edition %in% input$checkGroup, ])
+
+    observeEvent(input$checkGroup, {
+    leafletProxy("map", data = carchives_festval()) %>%
+      clearGroup ("mygroup") %>% addMarkers(
       # adding clustering options for overlapping points
       clusterOptions = markerClusterOptions(
         maxClusterSize = 100,
