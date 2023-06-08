@@ -32,6 +32,12 @@ ui <- fluidPage(
     # display map on screen
     leafletOutput("locations")
 
+    # add filter for festival_edition
+  checkboxGroupInput("festival_edition", "Filter by festival edition",
+                    choices = c("ca72", "ca76", "ca79", "ca81", "ca88", "ca92"),
+                    inline = TRUE)
+
+
 )
 # define server logic ---
 server <- function(input, output) {
@@ -42,6 +48,12 @@ server <- function(input, output) {
     
     locations<-leaflet(data=carchives)
     locations<-addTiles(locations)
+
+    # Filter the data by festival edition
+    if (any(input$festival_edition %in% carchives$category)) {
+      locations <- locations %>%
+        filter(category %in% input$festival_edition)
+    }
     
     # put markers on the map
     
