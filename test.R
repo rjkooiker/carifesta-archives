@@ -50,7 +50,8 @@ ui <- fluidPage(
 server <- function(input, output, session) {
   
   observeEvent(input$festival_edition, {
-    carchives_festival <- carchives[carchives$festival_edition %in% input$festival_edition, ]
+    selected_editions <- str_split(input$festival_edition, ";")
+    carchives_festival <- carchives[carchives$festival_edition %in% selected_editions, ]
     
     # Render map
     output$locations <- renderLeaflet({
