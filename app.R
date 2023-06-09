@@ -37,7 +37,7 @@ ui <- fluidPage(
   leafletOutput('locations'),
   
   # Add filter for festival edition
-  # Add filter for festival edition
+
   checkboxGroupInput("festival_edition", "Filter by festival edition",
                      choices = festival_list,
                      selected = festival_list,
@@ -46,7 +46,7 @@ ui <- fluidPage(
 )
 
 # Define server logic
-# Define server logic
+
 server <- function(input, output, session) {
   
   observeEvent(input$festival_edition, {
