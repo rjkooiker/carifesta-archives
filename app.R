@@ -4,8 +4,12 @@ library(leaflet)
 library(tidyr)
 library(readr)
 library(stringr)
+library(purrr)
+library(rsconnect)
+
 # Set working directory
-setwd("~/Desktop/Digital Projects/carifesta-archives/carifesta-archives")
+#setwd("~/Desktop/Digital Projects/carifesta-archives/carifesta-archives")
+
 
 # Read CSV file
 carchives <- read_csv("carifesta-archives.csv")
@@ -17,15 +21,17 @@ carchives <- separate(carchives, col = coordinates, into = c("Latitude", "Longit
 carchives$Longitude <- as.numeric(carchives$Longitude)
 carchives$Latitude <- as.numeric(carchives$Latitude)
 
-festival_list <- c("carifesta_1972" = "ca72",
-                   "carifesta_1976" = "ca76",
-                   "carifesta_1979" = "ca79",
-                   "carifesta_1981" = "ca81",
-                   "carifesta_1988" = "ca88",
-                   "carifesta_1992" = "ca92",
-                   "carifesta_1995" = "ca95",
-                   "carifesta_2000" = "ca00",
+festival_list <- c("Carifesta 1972" = "ca72",
+                   "Carifesta 1976" = "ca76",
+                   "Carifesta 1979" = "ca79",
+                   "Carifesta 1981" = "ca81",
+                   "Carifesta 1988" = "ca88",
+                   "Carifesta 1992" = "ca92",
+                   "Carifesta 1995" = "ca95",
+                   "Carifesta 2000" = "ca00",
                    "unknown" = "NULL")
+
+carchives$festival_edition <- str_split(carchives$festival_edition, ";")
 
 # Define UI for application
 ui <- fluidPage(
@@ -34,11 +40,12 @@ ui <- fluidPage(
   titlePanel("Map of Carifesta archives"),
   
   # Display map on screen
-  leafletOutput('locations'),
+  leafletOutput("locations"),
   
   # Add filter for festival edition
-
-  checkboxGroupInput("festival_edition", "Filter by festival edition",
+  
+  checkboxGroupInput(inputId = "festival",
+                     label = "Filter by festival",
                      choices = festival_list,
                      selected = festival_list,
                      inline = TRUE
@@ -49,34 +56,34 @@ ui <- fluidPage(
 
 server <- function(input, output, session) {
   
-  observeEvent(input$festival_edition, {
-    carchives_festival <- carchives[carchives$festival_edition %in% input$festival_edition, ]
-    
-    # Render map
-    output$locations <- renderLeaflet({
-      locations <- leaflet(data = carchives_festival)
-      locations <- addTiles(locations)
-      
-      locations <- addMarkers(locations,
-                              lng = ~Longitude, lat = ~Latitude,
-                              popup = paste("Repository:", carchives_festival$repository,
-                                            "<br>", "Label:",
-                                            "<a href=", carchives_festival$repo_url, ">",
-                                            carchives_festival$label, "</a>",
-                                            "<br>", "Description:", carchives_festival$description,
-                                            "<br>", "Files:", carchives_festival$folders),
-                              clusterOptions = markerClusterOptions(
-                                maxClusterSize = 100,
-                                color = "red",
-                                opacity = 0.5
-                              )
-      )
-    })
+  
+  data <- reactive({
+    req(input$festival)
+    carchives_festival <- carchives %>% filter(map_lgl(festival_edition, ~any(.x %in% input$festival)))
+  })
+  
+  # Render map
+  output$locations <- renderLeaflet({
+    locations <- leaflet(data())
+    locations <- addTiles(locations)
+    locations <- addMarkers(locations,
+                            lng = ~Longitude, lat = ~Latitude,
+                            popup = paste("Repository:", data()$repository,
+                                          "<br>", "Label:",
+                                          "<a href=", data()$repo_url, ">",
+                                          data()$label, "</a>",
+                                          "<br>", "Description:", data()$description,
+                                          "<br>", "Files:", data()$folders),
+                            clusterOptions = markerClusterOptions(
+                              showCoverageOnHover = FALSE,
+                              maxClusterSize = 100,
+                              opacity = 0.5
+                            )
+    )
   })
 }
-
 # Run application
 shinyApp(ui = ui, server = server)
 
 
-rsconnect::deployApp('/Users/renekooiker/Desktop/Digital Projects/carifesta-archives/carifesta-archives/')
+#rsconnect::deployApp('/Users/renekooiker/Desktop/Digital Projects/carifesta-archives/carifesta-archives/')
