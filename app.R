@@ -10,7 +10,6 @@ library(rsconnect)
 # Set working directory
 #setwd("~/Desktop/Digital Projects/carifesta-archives/carifesta-archives")
 
-
 # Read CSV file
 carchives <- read_csv("carifesta-archives.csv")
 
@@ -20,6 +19,7 @@ carchives <- separate(carchives, col = coordinates, into = c("Latitude", "Longit
 # Convert coordinates columns to numeric values
 carchives$Longitude <- as.numeric(carchives$Longitude)
 carchives$Latitude <- as.numeric(carchives$Latitude)
+carchives$access_status <- as.character(carchives$access_status)
 
 festival_list <- c("Carifesta 1972" = "ca72",
                    "Carifesta 1976" = "ca76",
@@ -75,7 +75,7 @@ server <- function(input, output, session) {
                                           data()$label, "</a>",
                                           "<br>", "Description:", data()$description,
                                           "<br>", "Folders:", data()$folders,
-                                          "<br>", "Access:", data()$access_status)
+                                          "<br>", "Access:", data()$access_status),
                             clusterOptions = markerClusterOptions(
                               showCoverageOnHover = FALSE,
                               maxClusterSize = 100,
@@ -88,4 +88,4 @@ server <- function(input, output, session) {
 shinyApp(ui = ui, server = server)
 
 
-#rsconnect::deployApp('/Users/renekooiker/Desktop/Digital Projects/carifesta-archives/carifesta-archives/')
+rsconnect::deployApp('/Users/renekooiker/Desktop/Digital Projects/carifesta-archives/carifesta-archives/')
