@@ -29,6 +29,7 @@ festival_list <- c("Carifesta 1972" = "ca72",
                    "Carifesta 1992" = "ca92",
                    "Carifesta 1995" = "ca95",
                    "Carifesta 2000" = "ca00",
+                   "Carifesta 2003" = "ca03",
                    "unknown" = "NULL")
 
 carchives$festival_edition <- str_split(carchives$festival_edition, ";")
@@ -73,7 +74,8 @@ server <- function(input, output, session) {
                                           "<a href=", data()$repo_url, ">",
                                           data()$label, "</a>",
                                           "<br>", "Description:", data()$description,
-                                          "<br>", "Files:", data()$folders),
+                                          "<br>", "Folders:", data()$folders,
+                                          "<br>", "Access:", data()$access_status)
                             clusterOptions = markerClusterOptions(
                               showCoverageOnHover = FALSE,
                               maxClusterSize = 100,
