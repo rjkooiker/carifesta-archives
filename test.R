@@ -5,9 +5,8 @@ library(tidyr)
 library(readr)
 library(stringr)
 library(purrr)
-# Set working directory
-setwd("~/Desktop/Digital Projects/carifesta-archives/carifesta-archives")
-
+# Set working directory (local testing only)
+#setwd("~/Desktop/Digital Projects/carifesta-archives/carifesta-archives")
 
 # Read CSV file
 carchives <- read_csv("carifesta-archives.csv")
@@ -18,6 +17,9 @@ carchives <- separate(carchives, col = coordinates, into = c("Latitude", "Longit
 # Convert coordinates columns to numeric values
 carchives$Longitude <- as.numeric(carchives$Longitude)
 carchives$Latitude <- as.numeric(carchives$Latitude)
+
+# adding google sheets data storage and retrieval
+#
 
 festival_list <- c("carifesta_1972" = "ca72",
                    "carifesta_1976" = "ca76",
@@ -84,4 +86,4 @@ server <- function(input, output, session) {
 shinyApp(ui = ui, server = server)
 
 
-rsconnect::deployApp('/Users/renekooiker/Desktop/Digital Projects/carifesta-archives/carifesta-archives/')
+rsconnect::deployApp(appDir = "Users/renekooiker/Desktop/Digital Projects/carifesta-archives/carifesta-archives/")

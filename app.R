@@ -88,4 +88,4 @@ server <- function(input, output, session) {
 shinyApp(ui = ui, server = server)
 
 
-rsconnect::deployApp('/Users/renekooiker/Desktop/Digital Projects/carifesta-archives/carifesta-archives/')
+#rsconnect::deployApp(appDir = "/Users/renekooiker/Desktop/Digital Projects/carifesta-archives/carifesta-archives")
