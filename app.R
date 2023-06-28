@@ -11,15 +11,15 @@ library(rsconnect)
 #setwd("~/Desktop/Digital Projects/carifesta-archives/carifesta-archives")
 
 # Read CSV file
-carchives <- read_csv("carifesta-archives.csv")
+df <- read_csv("carifesta.csv")
 
 # Separate coordinates column into Latitude and Longitude columns
-carchives <- separate(carchives, col = coordinates, into = c("Latitude", "Longitude"), sep = ",")
+df <- separate(df, col = coordinates, into = c("Latitude", "Longitude"), sep = ",")
 
 # Convert coordinates columns to numeric values
-carchives$Longitude <- as.numeric(carchives$Longitude)
-carchives$Latitude <- as.numeric(carchives$Latitude)
-carchives$access_status <- as.character(carchives$access_status)
+df$Longitude <- as.numeric(df$Longitude)
+df$Latitude <- as.numeric(df$Latitude)
+df$access_status <- as.character(df$access_status)
 
 festival_list <- c("Carifesta 1972" = "ca72",
                    "Carifesta 1976" = "ca76",
@@ -32,7 +32,7 @@ festival_list <- c("Carifesta 1972" = "ca72",
                    "Carifesta 2003" = "ca03",
                    "unknown" = "NULL")
 
-carchives$festival_edition <- str_split(carchives$festival_edition, ";")
+df$festival_edition <- str_split(df$festival_edition, ";")
 
 # Define UI for application
 ui <- fluidPage(
@@ -60,7 +60,7 @@ server <- function(input, output, session) {
   
   data <- reactive({
     req(input$festival)
-    carchives_festival <- carchives %>% filter(map_lgl(festival_edition, ~any(.x %in% input$festival)))
+    df_festival <- df %>% filter(map_lgl(festival_edition, ~any(.x %in% input$festival)))
   })
   
   # Render map
