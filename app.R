@@ -30,38 +30,43 @@ festival_list <- c("Carifesta 1972" = "ca72",
                    "Carifesta 1995" = "ca95",
                    "Carifesta 2000" = "ca00",
                    "Carifesta 2003" = "ca03",
+                   "Carifesta 2017" = "ca17",
                    "unknown" = "NULL")
 
 df$festival_edition <- str_split(df$festival_edition, ";")
 
-# Define UI for application
+# Define UI
 ui <- fluidPage(
+  titlePanel("Map of Carifesta Archives"),
   
-  # Application title
-  titlePanel("Map of Carifesta archives"),
-  
-  # Display map on screen
-  leafletOutput("locations"),
-  
-  # Add filter for festival edition
-  
-  checkboxGroupInput(inputId = "festival",
-                     label = "Filter by festival",
-                     choices = festival_list,
-                     selected = festival_list,
-                     inline = TRUE
-  ),
-
-  # Add "Select All" and "Deselect All" buttons
-  actionButton("select_all", "Select All"),
-  actionButton("deselect_all", "Deselect All")
+  sidebarLayout(
+    sidebarPanel(
+      checkboxGroupInput(inputId = "festival",
+                         label = "Filter by Festival Edition:",
+                         choices = festival_list,
+                         selected = festival_list,
+                         inline = TRUE),
+      actionButton("select_all", "Select All"),
+      actionButton("deselect_all", "Deselect All"),
+      tags$br(),tags$br(),
+      selectInput("digital", "Filter by Online Availability:", 
+                  choices = c("Online and On-Site" = "Online and On-Site", "Available Online" = TRUE, "Not Available Online" = FALSE), 
+                  selected = "Online and On-Site"),
+      selectInput("repo_type", "Repository Type:", 
+                  choices = c("All" = "All", unique(df$repo_type)), 
+                  selected = "All")
+    ),
+    
+    mainPanel(
+      leafletOutput("locations")
+    )
+  )
 )
 
 # Define server logic
-
 server <- function(input, output, session) {
-
-# Add reactive code to respond to "Select All" and "Deselect All" buttons
+  
+  # Add reactive code to respond to "Select All" and "Deselect All" buttons
   observeEvent(input$select_all, {
     updateCheckboxGroupInput(session, "festival", selected = festival_list)
   })
@@ -69,34 +74,58 @@ server <- function(input, output, session) {
   observeEvent(input$deselect_all, {
     updateCheckboxGroupInput(session, "festival", selected = character(0))
   })
-  
-  
-  data <- reactive({
-    req(input$festival)
-    df_festival <- df %>% filter(map_lgl(festival_edition, ~any(.x %in% input$festival)))
+
+  filtered_data <- reactive({
+    if (input$digital == "Online and On-Site") {
+      if (input$repo_type == "All") {
+        df %>%
+          filter(sapply(festival_edition, function(x) any(x %in% input$festival)))
+      } else {
+        df %>%
+          filter(
+            sapply(festival_edition, function(x) any(x %in% input$festival)),
+            repo_type %in% input$repo_type
+          )
+      }
+    } else {
+      if (input$repo_type == "All") {
+        df %>%
+          filter(
+            digital == as.logical(input$digital),
+            sapply(festival_edition, function(x) any(x %in% input$festival))
+          )
+      } else {
+        df %>%
+          filter(
+            digital == as.logical(input$digital),
+            sapply(festival_edition, function(x) any(x %in% input$festival)),
+            repo_type %in% input$repo_type
+          )
+      }
+    }
   })
   
-  # Render map
   output$locations <- renderLeaflet({
-    locations <- leaflet(data())
-    locations <- addTiles(locations)
-    locations <- addMarkers(locations,
-                            lng = ~Longitude, lat = ~Latitude,
-                            popup = paste("Repository:", data()$repository,
-                                          "<br>", "Label:",
-                                          "<a href=", data()$repo_url, ">",
-                                          data()$label, "</a>",
-                                          "<br>", "Description:", data()$description,
-                                          "<br>", "Folders:", data()$folders,
-                                          "<br>", "Access:", data()$access_status),
-                            clusterOptions = markerClusterOptions(
-                              showCoverageOnHover = FALSE,
-                              maxClusterSize = 100,
-                              opacity = 0.5
-                            )
-    )
+    leaflet(filtered_data()) %>%
+      addTiles() %>%
+      addMarkers(
+        lng = ~Longitude, lat = ~Latitude,
+        popup = paste("Repository:", filtered_data()$repository,
+                      "<br>", "Label:",
+                      "<a href=", filtered_data()$repo_url, ">",
+                      filtered_data()$label, "</a>",
+                      "<br>", "Description:", filtered_data()$description,
+                      "<br>", "Folders:", filtered_data()$folders,
+                      "<br>", "Online Availability:", ifelse(filtered_data()$digital, "Available Online", "Not Available Online")),
+        clusterOptions = markerClusterOptions(
+          showCoverageOnHover = FALSE,
+          maxClusterSize = 100,
+          opacity = 0.5
+        )
+      )
   })
 }
+
 # Run application
 shinyApp(ui = ui, server = server)
 
