@@ -50,12 +50,25 @@ ui <- fluidPage(
                      choices = festival_list,
                      selected = festival_list,
                      inline = TRUE
-  )
+  ),
+
+  # Add "Select All" and "Deselect All" buttons
+  actionButton("select_all", "Select All"),
+  actionButton("deselect_all", "Deselect All")
 )
 
 # Define server logic
 
 server <- function(input, output, session) {
+
+# Add reactive code to respond to "Select All" and "Deselect All" buttons
+  observeEvent(input$select_all, {
+    updateCheckboxGroupInput(session, "festival", selected = festival_list)
+  })
+  
+  observeEvent(input$deselect_all, {
+    updateCheckboxGroupInput(session, "festival", selected = character(0))
+  })
   
   
   data <- reactive({
