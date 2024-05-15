@@ -105,8 +105,8 @@ server <- function(input, output, session) {
     }
   })
   
-  output$locations <- renderLeaflet({
-    leaflet(filtered_data()) %>%
+output$locations <- renderLeaflet({
+    leaflet(filtered_data(), options = leafletOptions(zoomControl = FALSE)) %>%
       addTiles() %>%
       addMarkers(
         lng = ~Longitude, lat = ~Latitude,
