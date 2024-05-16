@@ -5,7 +5,7 @@ account: rjkooiker
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 9238851
-bundleId: 8620776
+bundleId: 8624454
 url: https://rjkooiker.shinyapps.io/carifesta-archives/
-when: 1715811329.8862
-lastSyncTime: 1715811329.88627
+when: 1715885024.74854
+lastSyncTime: 1715885024.74856
